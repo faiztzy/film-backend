@@ -1,5 +1,7 @@
+const genreMap = require("../utils/genreMap");
+
 const {
-getMovieRecommendations,
+  getMovieRecommendations,
 } = require("../services/modelService");
 
 const {
@@ -17,7 +19,7 @@ exports.getRecommendations = async (req, res) => {
       });
     }
 
-// HIT MODEL SERVICE
+    // HIT MODEL SERVICE
     const aiResponse = await getMovieRecommendations(
       synopsis
     );
@@ -32,51 +34,65 @@ exports.getRecommendations = async (req, res) => {
       });
     }
 
-// LOOP RECOMMENDATIONS
+    // LOOP RECOMMENDATIONS
     const movies = await Promise.all(
-      aiResponse.recommendations.map(async (movie) => {
-        try {
-          const tmdbMovie = await searchMovieByTitle(
-            movie.title
-          );
+      aiResponse.recommendations.map(
+        async (movie) => {
+          try {
+            const tmdbMovie =
+              await searchMovieByTitle(
+                movie.title
+              );
 
-          return {
-            rank: movie.rank,
-            similarity_score:
-              movie.similarity_score,
-            ml_title: movie.title,
+            return {
+              rank: movie.rank,
+              similarity_score:
+                movie.similarity_score,
+              ml_title: movie.title,
 
-            tmdb: tmdbMovie
-              ? {
-                  id: tmdbMovie.id,
-                  title: tmdbMovie.title,
-                  overview: tmdbMovie.overview,
-                  poster_path:
-                    tmdbMovie.poster_path,
-                  backdrop_path:
-                    tmdbMovie.backdrop_path,
-                  release_date:
-                    tmdbMovie.release_date,
-                  vote_average:
-                    tmdbMovie.vote_average,
-                  genre_ids:
-                    tmdbMovie.genre_ids,
-                }
-              : null,
-          };
-        } catch (error) {
-          return {
-            rank: movie.rank,
-            similarity_score:
-              movie.similarity_score,
-            ml_title: movie.title,
-            tmdb: null,
-          };
+              tmdb: tmdbMovie
+                ? {
+                    id: tmdbMovie.id,
+                    title: tmdbMovie.title,
+                    overview:
+                      tmdbMovie.overview,
+                    poster_path:
+                      tmdbMovie.poster_path,
+                    backdrop_path:
+                      tmdbMovie.backdrop_path,
+                    release_date:
+                      tmdbMovie.release_date,
+                    vote_average:
+                      tmdbMovie.vote_average,
+
+                    genres:
+                      tmdbMovie.genre_ids.map(
+                        (id) =>
+                          genreMap[id] ||
+                          "Unknown"
+                      ),
+                  }
+                : null,
+            };
+          } catch (error) {
+            console.error(
+              `TMDB Error for ${movie.title}:`,
+              error.message
+            );
+
+            return {
+              rank: movie.rank,
+              similarity_score:
+                movie.similarity_score,
+              ml_title: movie.title,
+              tmdb: null,
+            };
+          }
         }
-      })
+      )
     );
 
-return res.status(200).json({
+    return res.status(200).json({
       status: "success",
       movies,
     });
