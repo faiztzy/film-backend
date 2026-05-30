@@ -1,4 +1,5 @@
 const supabase = require("../config/supabase");
+const { getMovieById } = require("../services/tmdbService");
 
 exports.addFavorite = async (req, res) => {
   try {
@@ -40,9 +41,34 @@ exports.getFavorites = async (req, res) => {
 
     if (error) throw error;
 
+    const movies = await Promise.all(
+      data.map(async (favorite) => {
+        const movie = await getMovieById(
+          favorite.movie_id
+        );
+
+        if (!movie) return null;
+
+        return {
+          favorite_id: favorite.id,
+          movie_id: movie.id,
+          title: movie.title,
+          overview: movie.overview,
+          poster_path: movie.poster_path,
+          backdrop_path: movie.backdrop_path,
+          release_date: movie.release_date,
+          vote_average: movie.vote_average,
+          genres: movie.genres.map(
+            (genre) => genre.name
+          ),
+          created_at: favorite.created_at,
+        };
+      })
+    );
+
     res.status(200).json({
       status: "success",
-      data,
+      movies: movies.filter(Boolean),
     });
   } catch (error) {
     res.status(500).json({
