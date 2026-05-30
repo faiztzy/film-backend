@@ -16,6 +16,16 @@ router.get("/test", (req, res) => {
   });
 });
 
+// DEBUG BODY REQUEST
+router.post("/debug", (req, res) => {
+  console.log("BODY:", req.body);
+
+  res.json({
+    status: "success",
+    body: req.body,
+  });
+});
+
 router.post("/", protect, addFavorite);
 router.get("/", protect, getFavorites);
 router.delete("/:movieId", protect, deleteFavorite);

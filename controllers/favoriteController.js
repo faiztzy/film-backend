@@ -3,6 +3,10 @@ const { getMovieById } = require("../services/tmdbService");
 
 exports.addFavorite = async (req, res) => {
   try {
+    
+    console.log("BODY:", req.body);
+    console.log("USER:", req.user);
+
     const { movie_id } = req.body;
     const user_id = req.user.id;
 
@@ -39,13 +43,13 @@ exports.getFavorites = async (req, res) => {
       .select("*")
       .eq("user_id", user_id);
 
+    console.log("FAVORITES:", data);
+
     if (error) throw error;
 
     const movies = await Promise.all(
       data.map(async (favorite) => {
-        const movie = await getMovieById(
-          favorite.movie_id
-        );
+        const movie = await getMovieById(favorite.movie_id);
 
         if (!movie) return null;
 
@@ -58,12 +62,10 @@ exports.getFavorites = async (req, res) => {
           backdrop_path: movie.backdrop_path,
           release_date: movie.release_date,
           vote_average: movie.vote_average,
-          genres: movie.genres.map(
-            (genre) => genre.name
-          ),
+          genres: movie.genres.map((genre) => genre.name),
           created_at: favorite.created_at,
         };
-      })
+      }),
     );
 
     res.status(200).json({
