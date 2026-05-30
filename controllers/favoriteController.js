@@ -3,12 +3,15 @@ const { getMovieById } = require("../services/tmdbService");
 
 exports.addFavorite = async (req, res) => {
   try {
-    
-    console.log("BODY:", req.body);
-    console.log("USER:", req.user);
+    console.log("=== ADD FAVORITE ===");
+    console.log("REQ USER:", req.user);
+    console.log("REQ BODY:", req.body);
 
     const { movie_id } = req.body;
     const user_id = req.user.id;
+
+    console.log("USER ID:", user_id);
+    console.log("MOVIE ID:", movie_id);
 
     const { data, error } = await supabase
       .from("favorites")
@@ -20,6 +23,9 @@ exports.addFavorite = async (req, res) => {
       ])
       .select();
 
+    console.log("SUPABASE DATA:", data);
+    console.log("SUPABASE ERROR:", error);
+
     if (error) throw error;
 
     res.status(201).json({
@@ -27,6 +33,8 @@ exports.addFavorite = async (req, res) => {
       data,
     });
   } catch (error) {
+    console.error("ADD FAVORITE ERROR:", error);
+
     res.status(500).json({
       status: "error",
       message: error.message,
