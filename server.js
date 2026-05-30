@@ -14,11 +14,14 @@ app.use(express.json());
 const authRoutes = require("./routes/authRoutes");
 const recommendationRoutes = require("./routes/recommendationRoutes"); // Import rute baru
 const favoriteRoutes = require("./routes/favoriteRoutes");
+const movieRoutes = require("./routes/movieRoutes");
 
 // Register Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/movies", recommendationRoutes); // Daftarkan rute dengan prefix /api/movies
 app.use("/api/favorites", favoriteRoutes);
+app.use("/api/movies", movieRoutes);
+
 
 
 app.get("/", (req, res) => {

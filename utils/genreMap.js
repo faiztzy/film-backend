@@ -1,4 +1,4 @@
-const genreMap = {
+module.exports = {
   28: "Action",
   12: "Adventure",
   16: "Animation",
@@ -14,9 +14,8 @@ const genreMap = {
   9648: "Mystery",
   10749: "Romance",
   878: "Science Fiction",
+  10770: "TV Movie",
   53: "Thriller",
   10752: "War",
-  37: "Western"
+  37: "Western",
 };
-
-module.exports = genreMap;

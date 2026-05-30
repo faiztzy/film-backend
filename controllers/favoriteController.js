@@ -140,3 +140,28 @@ exports.deleteFavorite = async (req, res) => {
     });
   }
 };
+
+exports.checkFavorite = async (req, res) => {
+  try {
+    const { movieId } = req.params;
+    const user_id = req.user.id;
+
+    const { data, error } = await supabase
+      .from("favorites")
+      .select("id")
+      .eq("user_id", user_id)
+      .eq("movie_id", movieId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    res.status(200).json({
+      isFavorite: !!data,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
