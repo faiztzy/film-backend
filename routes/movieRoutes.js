@@ -5,15 +5,15 @@ const {
   getPopularMovies,
   getMovieDetail,
   getMovieTrailer,
+  searchMovies,
 } = require("../controllers/movieController");
 
-// Popular Movies
 router.get("/popular", getPopularMovies);
 
-// Movie Trailer
+router.get("/search", searchMovies);
+
 router.get("/:movieId/trailer", getMovieTrailer);
 
-// Movie Detail
 router.get("/:movieId", getMovieDetail);
 
 module.exports = router;
