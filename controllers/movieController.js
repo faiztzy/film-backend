@@ -1,6 +1,7 @@
 const {
   getPopularMovies,
   getMovieDetail,
+  getMovieTrailer: getMovieTrailerService,
 } = require("../services/tmdbService");
 
 // GET /api/movies/popular
@@ -38,6 +39,33 @@ exports.getMovieDetail = async (req, res) => {
     res.status(200).json({
       status: "success",
       movie,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: error.message,
+    });
+  }
+};
+
+// GET /api/movies/:movieId/trailer
+exports.getMovieTrailer = async (req, res) => {
+  try {
+    const { movieId } = req.params;
+
+    const trailerUrl = await getMovieTrailerService(movieId);
+
+    if (!trailerUrl) {
+      return res.status(404).json({
+        status: "error",
+        message: "Trailer not found",
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      movie_id: Number(movieId),
+      trailer_url: trailerUrl,
     });
   } catch (error) {
     res.status(500).json({

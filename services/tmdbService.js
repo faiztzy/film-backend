@@ -2,15 +2,16 @@ const axios = require("axios");
 
 const genreMap = require("../utils/genreMap");
 
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_BASE_URL = process.env.TMDB_BASE_URL;
+
 const getMovieDetail = async (movieId) => {
   try {
-    const tmdbApiKey = process.env.TMDB_API_KEY;
-
     const response = await axios.get(
-      `https://api.themoviedb.org/3/movie/${movieId}`,
+      `${TMDB_BASE_URL}/movie/${movieId}`,
       {
         params: {
-          api_key: tmdbApiKey,
+          api_key: TMDB_API_KEY,
         },
       },
     );
@@ -43,35 +44,36 @@ const getMovieDetail = async (movieId) => {
 };
 
 const searchMovieByTitle = async (title) => {
-  const tmdbApiKey = process.env.TMDB_API_KEY;
-
-  const response = await axios.get(
-    "https://api.themoviedb.org/3/search/movie",
-    {
-      params: {
-        api_key: tmdbApiKey,
-        query: title,
-        page: 1,
+  try {
+    const response = await axios.get(
+      `${TMDB_BASE_URL}/search/movie`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+          query: title,
+          page: 1,
+        },
       },
-    },
-  );
+    );
 
-  if (response.data.results && response.data.results.length > 0) {
-    return response.data.results[0];
+    if (response.data.results?.length > 0) {
+      return response.data.results[0];
+    }
+
+    return null;
+  } catch (error) {
+    console.error("TMDB Error:", error.message);
+    return null;
   }
-
-  return null;
 };
 
 const getMovieById = async (movieId) => {
   try {
-    const tmdbApiKey = process.env.TMDB_API_KEY;
-
     const response = await axios.get(
-      `https://api.themoviedb.org/3/movie/${movieId}`,
+      `${TMDB_BASE_URL}/movie/${movieId}`,
       {
         params: {
-          api_key: tmdbApiKey,
+          api_key: TMDB_API_KEY,
         },
       },
     );
@@ -85,13 +87,11 @@ const getMovieById = async (movieId) => {
 
 const getPopularMovies = async () => {
   try {
-    const tmdbApiKey = process.env.TMDB_API_KEY;
-
     const response = await axios.get(
-      "https://api.themoviedb.org/3/movie/popular",
+      `${TMDB_BASE_URL}/movie/popular`,
       {
         params: {
-          api_key: tmdbApiKey,
+          api_key: TMDB_API_KEY,
           page: 1,
         },
       },
@@ -113,11 +113,39 @@ const getPopularMovies = async () => {
       release_date: movie.release_date,
       vote_average: movie.vote_average,
 
-      genres: movie.genre_ids.map((id) => genreMap[id] || "Unknown"),
+      genres: movie.genre_ids.map(
+        (id) => genreMap[id] || "Unknown",
+      ),
     }));
   } catch (error) {
     console.error("TMDB Error:", error.message);
     return [];
+  }
+};
+
+const getMovieTrailer = async (movieId) => {
+  try {
+    const response = await axios.get(
+      `${TMDB_BASE_URL}/movie/${movieId}/videos`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+        },
+      },
+    );
+
+    const trailer = response.data.results.find(
+      (video) =>
+        video.type === "Trailer" &&
+        video.site === "YouTube",
+    );
+
+    return trailer
+      ? `https://www.youtube.com/watch?v=${trailer.key}`
+      : null;
+  } catch (error) {
+    console.error("TMDB Trailer Error:", error.message);
+    return null;
   }
 };
 
@@ -126,4 +154,5 @@ module.exports = {
   getMovieById,
   getPopularMovies,
   getMovieDetail,
+  getMovieTrailer,
 };
