@@ -72,6 +72,36 @@ const searchMovies = async (query) => {
   }
 };
 
+const searchMovieByTitle = async (title) => {
+  try {
+    const response = await axios.get(
+      `${TMDB_BASE_URL}/search/movie`,
+      {
+        params: {
+          api_key: TMDB_API_KEY,
+          query: title,
+          page: 1,
+        },
+      },
+    );
+
+    if (
+      response.data.results &&
+      response.data.results.length > 0
+    ) {
+      return response.data.results[0];
+    }
+
+    return null;
+  } catch (error) {
+    console.error(
+      "TMDB Search By Title Error:",
+      error.message,
+    );
+    return null;
+  }
+};
+
 const getMovieById = async (movieId) => {
   try {
     const response = await axios.get(`${TMDB_BASE_URL}/movie/${movieId}`, {
@@ -147,6 +177,7 @@ const getMovieTrailer = async (movieId) => {
 };
 
 module.exports = {
+  searchMovieByTitle,
   searchMovies,
   getMovieById,
   getPopularMovies,
