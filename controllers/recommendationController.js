@@ -1,6 +1,4 @@
 const { franc } = require("franc");
-const BadWords = require("bad-words");
-const filter = new BadWords();
 
 const genreMap = require("../utils/genreMap");
 
@@ -115,7 +113,7 @@ function validateSynopsis(synopsis) {
   }
 
   try {
-    if (filter.isProfane(trimmed)) {
+  {
       return {
         valid: false,
         message:
